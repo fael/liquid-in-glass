@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Liquid in Glass</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#0a0d1f;--fg:#e9ecff}
+:root[data-theme="dark"]{--bg:#0a0d1f;--fg:#e9ecff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;background:var(--bg);overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:pointer;display:block}
+p{position:absolute;left:0;right:0;top:calc(24px + env(safe-area-inset-top,0px));margin:0;text-align:center;color:var(--fg);opacity:.6;font:500 14px/1.4 "Avenir Next","Segoe UI",system-ui,sans-serif;pointer-events:none;padding:0 16px}
+#t{position:absolute;left:50%;top:calc(50% + env(safe-area-inset-top,0px)/2 - env(safe-area-inset-bottom,0px)/2);transform:translate(-50%,-50%);margin:0;bottom:auto;right:auto;width:auto;padding:0;white-space:nowrap;color:#fff;opacity:.58;font:600 26px/1 "Avenir Next","Segoe UI",system-ui,sans-serif;letter-spacing:.03em;text-shadow:0 0 14px rgba(255,255,255,.35),0 1px 0 rgba(255,255,255,.25);pointer-events:none;mix-blend-mode:plus-lighter}
+#panel{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:14px;width:min(290px,calc(100vw - 28px));z-index:5;font:500 13px/1.3 "Avenir Next","Segoe UI",system-ui,sans-serif;color:#eef0ff}
+#gear{display:block;margin-left:auto;padding:9px 16px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:inherit;font:inherit;cursor:pointer}
+#gear:focus-visible,#reset:focus-visible,#panel input:focus-visible{outline:2px solid #9fd3ff;outline-offset:2px}
+#body{margin-top:8px;padding:6px 16px 14px;max-height:calc(100vh - 120px);overflow:auto;border:1px solid rgba(255,255,255,.22);border-radius:20px;background:rgba(14,18,40,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+#body[hidden]{display:none}
+#body h3{margin:14px 0 4px;font-size:14px;font-weight:700}
+#body label{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-top:9px}
+#body output{opacity:.7;font-variant-numeric:tabular-nums}
+#body input{grid-column:1/3;width:100%;margin:0;accent-color:#9fd3ff}
+#reset{margin-top:16px;width:100%;padding:9px;border:1px solid rgba(255,255,255,.28);border-radius:12px;background:rgba(255,255,255,.1);color:inherit;font:inherit;cursor:pointer}
+#body .chk{grid-template-columns:1fr auto;align-items:center}#body .chk input{grid-column:auto;width:auto}
+#body .chk input[type=color]{width:40px;height:26px;padding:0;border:0;background:none;cursor:pointer}
+#body .chk select{grid-column:auto;padding:5px 8px;border:1px solid rgba(255,255,255,.28);border-radius:10px;background:rgba(255,255,255,.12);color:inherit;font:inherit}#body .chk option{color:#111}
+#body .pbtn{display:block;margin-top:14px;width:100%;padding:9px;border:1px solid rgba(255,255,255,.28);border-radius:12px;background:rgba(255,255,255,.1);color:inherit;font:inherit;cursor:pointer}#body .pbtn[hidden]{display:none}#body .pbtn+.pbtn{margin-top:8px}#body .pbtn:focus-visible{outline:2px solid #9fd3ff;outline-offset:2px}
+#logp{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:14px;width:min(320px,calc(100vw - 28px));z-index:5;font:500 13px/1.3 "Avenir Next","Segoe UI",system-ui,sans-serif;color:#eef0ff}
+#loggear{display:block;padding:9px 16px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:inherit;font:inherit;cursor:pointer}
+#logbody{margin-top:8px;padding:8px 14px 14px;max-height:calc(100vh - 120px);overflow:auto;border:1px solid rgba(255,255,255,.22);border-radius:20px;background:rgba(14,18,40,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+#logbody[hidden]{display:none}
+#loglist{list-style:none;margin:0;padding:0}
+#loglist li{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12)}
+#loglist time{grid-column:1/3;opacity:.55;font-size:11px;font-variant-numeric:tabular-nums}
+#loglist button{padding:4px 10px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(255,255,255,.1);color:inherit;font:inherit;cursor:pointer}
+#loglist button:disabled{opacity:.35;cursor:default}
+#loggear:focus-visible,#loglist button:focus-visible,#logbody .pbtn:focus-visible{outline:2px solid #9fd3ff;outline-offset:2px}
+#logbody .pbtn{display:block;margin-top:14px;width:100%;padding:9px;border:1px solid rgba(255,255,255,.28);border-radius:12px;background:rgba(255,255,255,.1);color:inherit;font:inherit;cursor:pointer}
+#hint{max-width:calc(100% - 2*140px);margin:0 auto}@media(max-width:619px){#hint{top:calc(66px + env(safe-area-inset-top,0px));max-width:none}}
+#body #sharebox{display:block;width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.28);border-radius:10px;background:rgba(255,255,255,.1);color:inherit;font:inherit}#body #sharebox::placeholder{color:rgba(238,240,255,.55)}#sharemsg{margin-top:8px;min-height:1em;opacity:.75;font-size:12px}
+</style></head><body>
+<canvas id="c"></canvas>
+<p id="t">Liquid in Glass</p>
+<p id="hint">Toque na cápsula para mexer a água. Arraste o Sol para mudar a luz.</p>
+<script>
+const cv=document.getElementById('c'),gl=cv.getContext('webgl2');
+const vs=`#version 300 es
+in vec2 a;void main(){gl_Position=vec4(a,0,1);}`;
+const fs=`#version 300 es
+precision highp float;
+uniform vec2 R;uniform float S,T,W,Hh,lvl;uniform vec2 C,sun;uniform float H_[64];uniform vec3 uWc;uniform vec2 uOff,uSq;uniform float uCi,uCw,uDT,uDS,uDI,uDM,uDF,uDW,uTb;
+out vec4 o;
+float sdf(vec2 q){float w=W-Hh;return length(vec2(q.x-clamp(q.x,-w,w),q.y))-Hh;}
+float hv(float x){float u=clamp((x-(C.x-W))/(2.*W),0.,1.)*63.;int i=int(floor(u));int j=min(i+1,63);return mix(H_[i],H_[j],fract(u));}
+vec3 bg(vec2 p){
+ vec3 c=mix(vec3(.04,.05,.13),vec3(.17,.09,.27),p.y/R.y);
+ c+=vec3(.9,.25,.5)*.45*exp(-length(p-vec2(.2,.35)*R)/(.25*R.x));
+ c+=vec3(.1,.5,.9)*.45*exp(-length(p-vec2(.85,.25)*R)/(.22*R.x));
+ c+=vec3(.95,.7,.2)*.2*exp(-length(p-vec2(.65,.85)*R)/(.15*R.x));
+ vec2 dd=C-sun;float dl=length(dd)+1.;vec2 dn=dd/dl;
+ float s=length(p-sun);
+ c+=vec3(1.,.86,.55)*(2.2*exp(-s*s/(2.*16.*16.))+.9*exp(-s/90.)+.25*exp(-s/300.));
+ // espectro projetado: a luz atravessa a água, então segue a superfície
+ float k=smoothstep(900.,120.,dl);
+ for(int i=0;i<3;i++){float f=float(i);
+  vec2 q=p-(C+dn*(170.+f*uDS));
+  vec2 pr=vec2(dot(q,dn),dot(q,vec2(-dn.y,dn.x)));
+  float u=C.x+clamp(pr.y*1.5,-W,W);
+  float sl=(hv(u+4.)-hv(u-4.))/8.;
+  float cu=(hv(u+6.)+hv(u-6.)-2.*hv(u))/36.;
+  pr.x-=clamp(sl*55.*(1.+.3*f),-uDM,uDM);pr.y-=clamp(sl*20.,-uDM*.55,uDM*.55);
+  float foc=clamp(1.-cu*(14.+4.*f)*uDF,.4,1.8);
+  c[i]+=uDI*k*foc*exp(-pr.x*pr.x/(2.*uDT*uDT)-pr.y*pr.y/(2.*uDW*uDW));}
+ return c;}
+void main(){
+ vec2 p=gl_FragCoord.xy/S;vec2 pb=C+(p-C-uOff)/uSq;
+ float d=sdf(pb-C);vec3 col;
+ vec2 L=normalize(sun-p);
+ if(d>0.){
+  col=bg(p);
+  col*=1.-.4*exp(-d/22.)*smoothstep(-20.,20.,d+8.);
+  float ds=sdf(pb-C-vec2(0,-14));col*=1.-.3*exp(-max(ds,0.)/40.);
+ }else{
+  vec2 e=vec2(1.,0.);
+  vec2 n=normalize(vec2(sdf(pb-C+e.xy)-sdf(pb-C-e.xy),sdf(pb-C+e.yx)-sdf(pb-C-e.yx))+1e-5);
+  float rim=pow(clamp(1.+d/30.,0.,1.),2.);
+  vec3 kk=vec3(26.,32.,39.);
+  float ys=C.y+lvl+hv(pb.x);
+  float sl=(hv(pb.x+3.)-hv(pb.x-3.))/6.;
+  bool wet=pb.y<ys;
+  for(int i=0;i<3;i++){
+   vec2 off=-n*rim*kk[i];
+   if(wet)off+=vec2(-sl*70.*(1.+.12*float(i)*uCi/.16),9.+float(i)*2.*uCi/.16);
+   col[i]=bg(p+off)[i];
+  }
+  if(wet){
+   float depth=clamp((ys-pb.y)/Hh,0.,1.);
+   col=col*mix(min(mix(uWc,vec3(1.),.55)*1.06,vec3(1.1)),uWc,depth)+uWc*.1*depth;
+   col=mix(col,vec3(.86,.9,.9)*(.75+.25*smoothstep(0.,1.,depth)),uTb*(1.+.5*depth));
+   float ph=pb.x*.085+hv(pb.x)*.35+T*.6;
+   vec3 ca=.5+.5*sin(vec3(ph,ph+.7,ph+1.4)*2.);
+   col+=uCi*pow(ca,vec3(3.))*mix(1.,clamp(abs(sl)*14.,0.,1.),uCw)*smoothstep(-.1,.4,L.y)*(1.-depth*.5);
+   float sd=abs(pb.y-ys);
+   vec2 ns=normalize(vec2(-sl,1.));
+   float sp=pow(max(dot(ns,normalize(vec2(sun.x-p.x,sun.y-ys))),0.),10.);
+   col+=(.5+1.4*sp)*exp(-sd*sd/3.5)*vec3(.9,.97,1.);
+  }else col=col*vec3(.97,.99,1.)+.02;
+  float fa=max(dot(n,L),0.),fb=max(dot(n,-L),0.);
+  float rr=smoothstep(-16.,0.,d);
+  col+=rr*(pow(fa,4.)*vec3(1.,.9,.75)*.9+pow(fb,5.)*vec3(.5,.7,1.)*.35);
+  col+=(pow(fa,9.)*vec3(.9,.2,.1)+pow(max(dot(n,normalize(L+vec2(.25)*n)),0.),9.)*vec3(.1,.3,.9))*rim*.45;
+  col+=.05*rim;
+ }
+ float ring=smoothstep(2.,0.,abs(d+1.2));
+ vec2 e2=vec2(1.,0.);
+ vec2 nn=normalize(vec2(sdf(pb-C+e2.xy)-sdf(pb-C-e2.xy),sdf(pb-C+e2.yx)-sdf(pb-C-e2.yx))+1e-5);
+ col+=ring*(.22+.5*pow(max(dot(nn,L),0.),3.));
+ col=col/(1.+col*.12);
+ o=vec4(pow(col,vec3(.95)),1.);
+}`;
+function sh(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(x));return x}
+const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);gl.useProgram(pr);
+const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+const al=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
+const U=n=>gl.getUniformLocation(pr,n);
+const uR=U('R'),uS=U('S'),uT=U('T'),uW=U('W'),uH=U('Hh'),uL=U('lvl'),uC=U('C'),uSun=U('sun'),uHa=U('H_[0]');
+const TR={en:{'Interação':'Interaction','Água':'Water','Dispersão':'Dispersion','Velocidade das ondas':'Wave speed','Amortecimento':'Damping','Viscosidade':'Viscosity','Força do toque':'Touch strength','Nível da água':'Water level','Turbidez':'Turbidity','Cores dentro da água':'Colors inside water','Cores só com ondas':'Colors only with waves','Espessura das faixas':'Band thickness','Espaço entre cores':'Color spacing','Intensidade':'Intensity','Deslocamento máximo':'Max shift','Foco nas ondas':'Wave focus','Altura da faixa':'Band height','Cor da água':'Water color','Acionar com clique (em vez de pressionar)':'Trigger on click (instead of press)','Ajustes':'Settings','Restaurar padrão':'Reset to defaults','Idioma':'Language','Partilhar':'Share','Gerar e copiar link':'Copy share link','Carregar de um link':'Load from link','Cole aqui um link ou código':'Paste a link or code here','Link copiado':'Link copied','Selecione e copie o link':'Select and copy the link','Link inválido':'Invalid link','Posição do Sol':'Sun position','Botão elástico':'Squishy button','Força elástica':'Squish strength','Registro':'Log','Restaurar':'Restore','Limpar registro':'Clear log','Início':'Start','Restaurado do registro':'Restored from log','Valores reais da água':'Realistic water values','Voltar aos valores anteriores':'Back to previous values','Toque na cápsula para mexer a água. Arraste o Sol para mudar a luz.':'Touch the capsule to stir the water. Drag the Sun to change the light.'},
+es:{'Interação':'Interacción','Água':'Agua','Dispersão':'Dispersión','Velocidade das ondas':'Velocidad de las ondas','Amortecimento':'Amortiguación','Viscosidade':'Viscosidad','Força do toque':'Fuerza del toque','Nível da água':'Nivel del agua','Turbidez':'Turbidez','Cores dentro da água':'Colores dentro del agua','Cores só com ondas':'Colores solo con ondas','Espessura das faixas':'Grosor de las franjas','Espaço entre cores':'Espacio entre colores','Intensidade':'Intensidad','Deslocamento máximo':'Desplazamiento máximo','Foco nas ondas':'Foco en las ondas','Altura da faixa':'Altura de la franja','Cor da água':'Color del agua','Acionar com clique (em vez de pressionar)':'Activar con clic (en vez de mantener)','Ajustes':'Ajustes','Restaurar padrão':'Restablecer valores','Idioma':'Idioma','Partilhar':'Compartir','Gerar e copiar link':'Copiar enlace','Carregar de um link':'Cargar desde enlace','Cole aqui um link ou código':'Pega aquí un enlace o código','Link copiado':'Enlace copiado','Selecione e copie o link':'Selecciona y copia el enlace','Link inválido':'Enlace no válido','Posição do Sol':'Posición del Sol','Botão elástico':'Botón elástico','Força elástica':'Fuerza elástica','Registro':'Registro','Restaurar':'Restaurar','Limpar registro':'Borrar registro','Início':'Inicio','Restaurado do registro':'Restaurado del registro','Valores reais da água':'Valores reales del agua','Voltar aos valores anteriores':'Volver a los valores anteriores','Toque na cápsula para mexer a água. Arraste o Sol para mudar a luz.':'Toca la cápsula para mover el agua. Arrastra el Sol para cambiar la luz.'}};
+let snap=null;const REAL={c2:.2,damp:.002,visc:0,finger:.18,lvl:-6,tb:.04,ci:.03,cw:1,wc:'#7fbcd8'};
+const t=x=>(TR[P.lang]||{})[x]||x;
+const DEF={sunx:.38,suny:.6,squish:false,sqa:.5,click:true,ci:.02,cw:.5,wc:'#408cd9',c2:.24,damp:.005,visc:.02,finger:.07,lvl:19,tb:.09,dt:6,ds:11,di:1,dm:40,df:1,dw:60};
+const META=[['Interação'],['click','chk'],['squish','chk'],['sqa','Força elástica',0,2,.05],['Água'],['wc','col'],['c2','Velocidade das ondas',.04,.3,.01],['damp','Amortecimento',.0005,.12,.0005],['visc','Viscosidade',0,.3,.01],['finger','Força do toque',.04,.4,.01],['lvl','Nível da água',-30,30,1],['tb','Turbidez',0,.7,.01],['ci','Cores dentro da água',0,.5,.01],['cw','Cores só com ondas',0,1,.05],
+['Dispersão'],['dt','Espessura das faixas',1,14,.5],['ds','Espaço entre cores',2,60,1],['di','Intensidade',0,8,.1],['dm','Deslocamento máximo',0,80,1],['df','Foco nas ondas',0,3,.1],['dw','Altura da faixa',30,220,5]];
+const P={...DEF,lang:['pt','en','es'].includes((navigator.language||'').slice(0,2))?(navigator.language||'').slice(0,2):'pt'},KEY='liquid-in-glass-settings';
+try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(P))}catch(e){}logChange()};
+function build(open){const old=document.getElementById('panel');if(old)old.remove();const box=document.createElement('div');box.id='panel';
+ const btn=document.createElement('button');btn.id='gear';btn.textContent=t('Ajustes');btn.setAttribute('aria-expanded',String(!!open));
+ const body=document.createElement('div');body.id='body';body.hidden=!open;
+ const ins={};
+ {const row=document.createElement('label'),name=document.createElement('span'),sel=document.createElement('select');row.className='chk';name.textContent=t('Idioma');
+  [['pt','Português'],['en','English'],['es','Español']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;sel.appendChild(o)});sel.value=P.lang;
+  sel.onchange=()=>{P.lang=sel.value;save();applyLang();build(true)};row.append(name,sel);body.appendChild(row)}
+ META.forEach(m=>{if(m.length===1){const h=document.createElement('h3');h.textContent=t(m[0]);body.appendChild(h);return}
+  if(m[1]==='col'){const row=document.createElement('label'),name=document.createElement('span'),inp=document.createElement('input');row.className='chk';name.textContent=t('Cor da água');inp.type='color';inp.value=P.wc;
+   inp.oninput=()=>{P.wc=inp.value;save()};ins.wc=[inp,{},1];row.append(name,inp);body.appendChild(row);return}
+  if(m[1]==='chk'){const row=document.createElement('label'),name=document.createElement('span'),inp=document.createElement('input');row.className='chk';name.textContent=t(LBL[m[0]]||m[0]);inp.type='checkbox';inp.checked=!!P[m[0]];
+   inp.onchange=()=>{P[m[0]]=inp.checked;save()};ins[m[0]]=[inp,{},1];row.append(name,inp);body.appendChild(row);return}
+  const [k,l,mn,mx,st]=m,row=document.createElement('label'),name=document.createElement('span'),val=document.createElement('output'),inp=document.createElement('input');
+  name.textContent=t(l);inp.type='range';inp.min=mn;inp.max=mx;inp.step=st;inp.value=P[k];val.textContent=(+P[k]).toFixed(st<.001?4:st<.01?3:st<1?2:0);
+  inp.oninput=()=>{P[k]=+inp.value;val.textContent=(+inp.value).toFixed(st<.001?4:st<.01?3:st<1?2:0);save()};
+  ins[k]=[inp,val,st];row.append(name,val,inp);body.appendChild(row)});
+ const rs=document.createElement('button');rs.id='reset';rs.textContent=t('Restaurar padrão');
+ const sync=()=>{for(const k in ins){const[i,v,st]=ins[k];i.checked=!!P[k];i.value=P[k];v.textContent=(+P[k]).toFixed(st<.001?4:st<.01?3:st<1?2:0)}};
+ syncFn=sync;const rb=document.createElement('button'),ub=document.createElement('button');rb.className=ub.className='pbtn';rb.textContent=t('Valores reais da água');ub.textContent=t('Voltar aos valores anteriores');ub.hidden=!snap;
+ rb.onclick=()=>{if(!snap){snap={};for(const k in REAL)snap[k]=P[k]}Object.assign(P,REAL);sync();ub.hidden=false;nextLabel='Valores reais da água';save()};
+ ub.onclick=()=>{if(snap){Object.assign(P,snap);snap=null;sync();ub.hidden=true;nextLabel='Voltar aos valores anteriores';save()}};
+ rs.onclick=()=>{Object.assign(P,DEF);snap=null;ub.hidden=true;sync();nextLabel='Restaurar padrão';save()};
+ const mk=x=>{const b=document.createElement('button');b.className='pbtn';b.textContent=x;return b};
+ const hs=document.createElement('h3'),bx=document.createElement('input'),cp=mk(t('Gerar e copiar link')),ld=mk(t('Carregar de um link')),msg=document.createElement('div');
+ hs.textContent=t('Partilhar');bx.type='text';bx.id='sharebox';bx.placeholder=t('Cole aqui um link ou código');bx.setAttribute('aria-label',t('Partilhar'));msg.id='sharemsg';msg.setAttribute('aria-live','polite');
+ cp.onclick=()=>{const u=shareURL();bx.value=u;bx.select();let p;try{p=navigator.clipboard.writeText(u)}catch(e){p=Promise.reject()}p.then(()=>{msg.textContent=t('Link copiado')},()=>{msg.textContent=t('Selecione e copie o link')})};
+ ld.onclick=()=>{msg.textContent=applyShare(bx.value)?t('Carregado de um link'):t('Link inválido')};
+ body.append(hs,bx,cp,ld,msg,rb,ub,rs);
+ btn.onclick=()=>{if(body.hidden&&innerWidth<620&&logOpen){logOpen=false;buildLog()}body.hidden=!body.hidden;btn.setAttribute('aria-expanded',String(!body.hidden))};
+ box.append(btn,body);document.body.appendChild(box)}
+const HINT='Toque na cápsula para mexer a água. Arraste o Sol para mudar a luz.';
+function applyLang(){document.documentElement.lang=P.lang;document.getElementById('hint').textContent=t(HINT);buildLog()}
+let logOpen=false,syncFn=null,nextLabel=null,LOG=[],last=null;
+const LK='liquid-in-glass-log';
+try{const a=JSON.parse(localStorage.getItem(LK)||'[]');if(Array.isArray(a))LOG=a}catch(e){}
+const snapOf=()=>{const o={};for(const k in DEF)o[k]=P[k];return o};
+const pick=(o,ks)=>{const r={};ks.forEach(k=>r[k]=o[k]);return r};
+last=snapOf();
+if(!LOG.length)LOG.push({t:Date.now(),label:'Início',keys:[],snap:{...last}});
+function persist(){try{localStorage.setItem(LK,JSON.stringify(LOG.slice(-100)))}catch(e){}}
+function logChange(){const now=snapOf(),keys=Object.keys(now).filter(k=>now[k]!==last[k]);if(!keys.length)return;
+ const lab=nextLabel;nextLabel=null;const e=LOG[LOG.length-1],SK=['sunx','suny'],isSun=!lab&&keys.every(k=>k==='sunx'||k==='suny');
+ if(isSun&&e&&e.kind==='sun'&&Date.now()-e.t<900){e.t=Date.now();e.to=pick(now,SK);e.snap=now}
+ else if(isSun)LOG.push({t:Date.now(),kind:'sun',keys:SK,from:pick(last,SK),to:pick(now,SK),snap:now});
+ else if(!lab&&keys.length===1&&e&&!e.label&&e.keys&&e.keys.length===1&&e.keys[0]===keys[0]&&Date.now()-e.t<900){e.t=Date.now();e.to=pick(now,keys);e.snap=now}
+ else LOG.push({t:Date.now(),label:lab,keys,from:pick(last,keys),to:pick(now,keys),snap:now});
+ last=now;if(LOG.length>100)LOG.splice(0,LOG.length-100);persist();renderLog()}
+const fmt=v=>typeof v==='boolean'?(v?'✓':'✗'):typeof v==='number'?String(+v.toFixed(4)):String(v);
+const LBL={squish:'Botão elástico',click:'Acionar com clique (em vez de pressionar)',wc:'Cor da água'};
+const nameOf=k=>LBL[k]||(META.find(m=>m[0]===k)||[])[1]||k;
+function renderLog(){const list=document.getElementById('loglist');if(!list)return;list.textContent='';const cur=JSON.stringify(snapOf());
+ LOG.slice().reverse().forEach(e=>{const li=document.createElement('li'),tm=document.createElement('time'),tx=document.createElement('span'),b=document.createElement('button');
+  tm.textContent=new Date(e.t).toLocaleTimeString(P.lang);
+  const pc=o=>Math.round(o.sunx*100)+'%, '+Math.round(o.suny*100)+'%';tx.textContent=e.kind==='sun'?t('Posição do Sol')+': '+pc(e.from)+' → '+pc(e.to):e.label?t(e.label):e.keys.length===1?t(nameOf(e.keys[0]))+': '+fmt(e.from[e.keys[0]])+' → '+fmt(e.to[e.keys[0]]):e.keys.map(k=>t(nameOf(k))).join(', ');
+  b.textContent=t('Restaurar');b.disabled=JSON.stringify(e.snap)===cur;
+  b.onclick=()=>{Object.assign(P,e.snap);nextLabel='Restaurado do registro';if(syncFn)syncFn();save()};
+  li.append(tm,tx,b);list.appendChild(li)})}
+function buildLog(){const old=document.getElementById('logp');if(old)old.remove();
+ const box=document.createElement('div'),btn=document.createElement('button'),body=document.createElement('div'),ul=document.createElement('ul'),clr=document.createElement('button');
+ box.id='logp';btn.id='loggear';btn.textContent='Settings log';btn.setAttribute('aria-expanded',String(logOpen));body.id='logbody';body.hidden=!logOpen;ul.id='loglist';
+ clr.className='pbtn';clr.textContent=t('Limpar registro');clr.onclick=()=>{LOG=[{t:Date.now(),label:'Início',keys:[],snap:snapOf()}];last=snapOf();persist();renderLog()};
+ btn.onclick=()=>{logOpen=!logOpen;if(logOpen&&innerWidth<620)build(false);buildLog()};
+ body.append(ul,clr);box.append(btn,body);document.body.appendChild(box);renderLog()}
+const RNG={sunx:[0,1],suny:[0,1]};META.forEach(m=>{if(m.length>2)RNG[m[0]]=[m[2],m[3]]});
+const b64=x=>btoa(unescape(encodeURIComponent(x))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const unb64=x=>decodeURIComponent(escape(atob(x.replace(/-/g,'+').replace(/_/g,'/'))));
+function shareURL(){const o={};for(const k in DEF)if(P[k]!==DEF[k])o[k]=P[k];return location.href.split('#')[0]+'#s='+b64(JSON.stringify(o))}
+function applyShare(str){try{str=String(str||'').trim();const m=/(?:^|[#&?])s=([A-Za-z0-9_-]+)/.exec(str),code=m?m[1]:(/^[A-Za-z0-9_-]+$/.test(str)?str:null);if(!code)return false;
+ const o=JSON.parse(unb64(code)),c={};if(!o||typeof o!=='object')return false;
+ for(const k in o){if(!(k in DEF))continue;const d=DEF[k],v=o[k];
+  if(typeof d==='number'){if(typeof v==='number'&&isFinite(v))c[k]=RNG[k]?Math.min(RNG[k][1],Math.max(RNG[k][0],v)):v}
+  else if(typeof d==='boolean'){if(typeof v==='boolean')c[k]=v}
+  else if(typeof d==='string'&&typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))c[k]=v}
+ Object.assign(P,DEF,c);snap=null;if(syncFn)syncFn();nextLabel='Carregado de um link';save();return true}catch(e){return false}}
+build(false);applyLang();
+try{if(/[#&]s=/.test(location.hash)){applyShare(location.hash);history.replaceState(null,'',location.pathname+location.search)}}catch(e){}
+const N=64,h=new Float32Array(N),v=new Float32Array(N);
+let dpr=1,vw=0,vh=0,W=180,Hh=68,C=[0,0],lvl=-6,sun=[0,0],sunInit=false;
+let mode=null,px=0,py=0,fx=0,fa=0,tipY=0;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);vw=innerWidth;vh=innerHeight;cv.width=vw*dpr;cv.height=vh*dpr;
+ W=Math.min(190,vw*.4);Hh=Math.min(70,W*.38);C=[vw/2,vh/2];document.getElementById('t').style.fontSize=Math.round(W*.185)+'px';
+ if(!sunInit){sun=[vw*.2,vh*.78];sunInit=true}gl.viewport(0,0,cv.width,cv.height)}
+addEventListener('resize',resize);resize();
+const pos=e=>[e.clientX,vh-e.clientY];
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);[px,py]=pos(e);
+ if(Math.hypot(px-sun[0],py-sun[1])<48){mode='sun';grab=[sun[0]-px,sun[1]-py];cv.style.cursor='grabbing'}
+ else{const q=[Math.abs(px-C[0])-(W-Hh),py-C[1]];
+  if(Math.hypot(Math.max(q[0],0),q[1])<Hh*1.25)mode='finger';else mode=null}
+ if(mode==='finger'){fx=px;if(P.click){clearTimeout(tap);tap=setTimeout(()=>{if(mode==='finger')mode=null},220)}}});
+let grab=[0,0];
+cv.addEventListener('pointermove',e=>{[px,py]=pos(e);if(mode==='sun')setSun(px+grab[0],py+grab[1]);else if(!mode)cv.style.cursor=Math.hypot(px-sun[0],py-sun[1])<48?'grab':'pointer'});
+let tap;let sunT=null;
+function setSun(x,y){P.sunx=x/vw;P.suny=y/vh;if(!sunT)sunT=setTimeout(()=>{sunT=null;save()},120)}
+const up=()=>{cv.style.cursor='pointer';if(sunT){clearTimeout(sunT);sunT=null;save()}if(mode==='finger'&&P.click)return;mode=null};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+function step(){
+ const c2=P.c2,damp=P.damp,visc=P.visc;
+ for(let i=0;i<N;i++){const l=h[i>0?i-1:0],r=h[i<N-1?i+1:N-1];v[i]+=c2*(l+r-2*h[i])-visc*(v[i]-.5*((i>0?v[i-1]:v[i])+(i<N-1?v[i+1]:v[i])));v[i]*=1-damp}
+ if(fa>.05&&mode==='finger'){
+  const dx=2*W/(N-1),base=C[1]+P.lvl,tgt=tipY-10-base;
+  for(let i=0;i<N;i++){const x=C[0]-W+i*dx,g=Math.exp(-((x-fx)**2)/(2*26*26));if(tgt<h[i])v[i]+=(tgt-h[i])*P.finger*g}}
+ let m=0;for(let i=0;i<N;i++){h[i]+=v[i];m+=h[i]}m/=N;
+ const cap=Hh*.72;
+ for(let i=0;i<N;i++){h[i]-=m;if(h[i]>cap){h[i]=cap;v[i]*=-.3}if(h[i]<-cap*1.1){h[i]=-cap*1.1;v[i]*=-.3}}
+}
+const sq={x:1,y:1,ox:0,oy:0,vx:0,vy:0,vox:0,voy:0},tEl=document.getElementById('t');
+function squish(){const A=P.squish?P.sqa:0,on=mode==='finger'?1:0,k=.12,dm=.06;
+ const tg=[1+.05*A*on,1-.09*A*on,(px-C[0])*.07*A*on,(py-C[1])*.09*A*on],k2=['x','y','ox','oy'],vk=['vx','vy','vox','voy'];
+ k2.forEach((n,i)=>{sq[vk[i]]+=(tg[i]-sq[n])*k;sq[vk[i]]*=1-dm;sq[n]+=sq[vk[i]]});
+ tEl.style.transform='translate(-50%,-50%) translate('+sq.ox+'px,'+(-sq.oy)+'px) scale('+sq.x+','+sq.y+')'}
+function frame(){
+ const down=mode==='finger',top=C[1]+Hh+70,low=C[1]+P.lvl-Hh*.62;
+ if(down)fx=Math.max(C[0]-W+Hh*.6,Math.min(C[0]+W-Hh*.6,fx+(px-fx)*.35));
+ if(!tipY)tipY=top;
+ tipY+=((down?low:top)-tipY)*(down?.22:.12);
+ fa+=((down||tipY<top-4?1:0)-fa)*.25;
+ sun=[P.sunx*vw,P.suny*vh];step();step();squish();gl.uniform2f(U('uOff'),sq.ox,sq.oy);gl.uniform2f(U('uSq'),sq.x,sq.y);
+ gl.uniform2f(uR,vw,vh);gl.uniform1f(uS,dpr);gl.uniform1f(uT,performance.now()/1000);gl.uniform1f(uW,W);gl.uniform1f(uH,Hh);gl.uniform1f(uL,P.lvl);gl.uniform1f(U('uDT'),P.dt);gl.uniform1f(U('uDS'),P.ds);gl.uniform1f(U('uDI'),P.di);gl.uniform1f(U('uDM'),P.dm);gl.uniform1f(U('uDF'),P.df);gl.uniform1f(U('uDW'),P.dw);gl.uniform1f(U('uTb'),P.tb);gl.uniform1f(U('uCi'),P.ci);{const x=parseInt(String(P.wc).slice(1),16)||0;gl.uniform3f(U('uWc'),(x>>16&255)/255,(x>>8&255)/255,(x&255)/255)}gl.uniform1f(U('uCw'),P.cw);
+ gl.uniform2f(uC,C[0],C[1]);gl.uniform2f(uSun,sun[0],sun[1]);gl.uniform1fv(uHa,h);
+ gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+</script></body></html>
